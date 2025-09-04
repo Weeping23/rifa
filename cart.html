@@ -5,167 +5,7 @@
   <title>Carrito de compras</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #eef2f3, #dfe9f3);
-      color: #333;
-    }
-
-    header {
-      background: linear-gradient(90deg, #007bff, #0056b3);
-      padding: 12px 30px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-    
-    nav {
-      display: flex;
-    }
-    
-    nav a.home-icon {
-      color: white;
-      font-size: 1.8rem;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-    
-    nav a.home-icon:hover {
-      color: #ffd700;
-      transform: scale(1.1);
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 25px;
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #0d6efd;
-    }
-
-    /* Carrito en tabla */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-
-    table th, table td {
-      padding: 12px 15px;
-      text-align: left;
-    }
-
-    table th {
-      background: #f1f1f1;
-      color: #333;
-    }
-
-    table tr:nth-child(even) {
-      background: #fafafa;
-    }
-
-    .btn {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-danger {
-      background: #dc3545;
-      color: #fff;
-    }
-    .btn-danger:hover {
-      background: #b02a37;
-    }
-
-    .btn-primary {
-      background: #0d6efd;
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: #0a58ca;
-    }
-
-    #previewContainer {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    #previewImg {
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      max-width: 200px;
-      max-height: 200px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-
-    /* Toast premium */
-    #toast {
-      visibility: hidden;
-      min-width: 280px;
-      background: #0d6efd;
-      color: #fff;
-      text-align: center;
-      border-radius: 12px;
-      padding: 16px;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(-30px);
-      transition: opacity 0.5s, transform 0.5s;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    #toast.show {
-      visibility: visible;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-      table tr {
-        margin-bottom: 15px;
-        border-bottom: 2px solid #f1f1f1;
-      }
-      table td {
-        text-align: right;
-        padding-left: 50%;
-        position: relative;
-      }
-      table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 15px;
-        width: 45%;
-        text-align: left;
-        font-weight: bold;
-        color: #555;
-      }
-      .btn {
-        width: 100%;
-        margin-top: 10px;
-      }
-    }
-  </style>
+  
 </head>
 <body>
 <header>
@@ -181,11 +21,11 @@
   <div id="cart"></div>
 
   <!-- Sección de comprobante -->
-  <div id="paymentSection" style="display:none; margin-top:20px;">
+  <div id="paymentSection">
     <label><b>Subir comprobante de pago:</b></label><br><br>
     <input type="file" id="compImagen" accept="image/*" class="btn btn-primary"><br><br>
 
-    <div id="previewContainer" style="display:none;">
+    <div id="previewContainer">
       <p><b>Vista previa del comprobante:</b></p>
       <img id="previewImg">
     </div>
@@ -246,7 +86,7 @@ async function mostrarCart() {
           <td data-label="Acción"><button class="btn btn-danger" onclick="eliminar(${item.id})">Eliminar</button></td>
         </tr>`;
     });
-    t += `</tbody></table><p style="text-align:right; font-size:18px;"><b>Total:</b> $${total}</p>`;
+    t += `</tbody></table><p class="total"><b>Total:</b> $${total}</p>`;
     document.getElementById('cart').innerHTML = t;
   } catch (error) {
     document.getElementById('cart').innerHTML = `<p>Error al cargar el carrito: ${error.message}</p>`;

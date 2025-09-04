@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Rifas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
@@ -13,23 +13,20 @@
     <nav>
       <a href="index.html" title="Inicio"><i class="fas fa-home"></i></a>
       <a href="cart.html" title="Carrito"><i class="fas fa-shopping-cart"></i></a>
-      <a href="#" id="adminLink" style="display:none;" title="Admin"><i class="fas fa-user-cog"></i></a>
+      <a href="#" id="adminLink" title="Admin"><i class="fas fa-user-cog"></i></a>
       <a href="#" id="loginOut" title="Iniciar sesión / Cerrar sesión"><i class="fas fa-sign-in-alt"></i></a>
     </nav>
 </header>
 <!-- Carrusel de Eventos Destacados -->
-<div id="carouselWrapper" style="width:100%; max-width:800px; margin:auto; margin-bottom:30px; margin-top:60px; display:flex; align-items:center; position:relative;">
-    <button id="carouselPrev"
-            style="font-size:2em; background:none; border:none; cursor:pointer; padding:0 10px; flex-shrink:0;">
+<div id="carouselWrapper" class="carousel-wrapper">
+    <button id="carouselPrev" class="carousel-btn">
         &#10094;
     </button>
 
-    <div id="carouselContent"
-         style="overflow:hidden; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); background:#fff; min-height:320px; flex-grow:1; margin: 0 10px;">
+    <div id="carouselContent" class="carousel-content">
     </div>
 
-    <button id="carouselNext"
-            style="font-size:2em; background:none; border:none; cursor:pointer; padding:0 10px; flex-shrink:0;">
+    <button id="carouselNext" class="carousel-btn">
         &#10095;
     </button>
 
@@ -101,7 +98,7 @@ fetch('events.php?action=list')
         
         let botonHtml = '';
         if (Math.round(porcentaje) === 100) {
-          botonHtml = `<button class="detallesEvento detalles-btn" disabled style="background: grey; cursor: not-allowed;">Agotados</button>`;
+          botonHtml = `<button class="detallesEvento detalles-btn agotado" disabled>Agotados</button>`;
         } else {
           botonHtml = `<a class="detallesEvento detalles-btn" href="event.html?id=${ev.id}">Ver detalles</a>`;
         }
@@ -110,7 +107,7 @@ fetch('events.php?action=list')
           <div class="card">
             <div>
               <h3>${ev.title}</h3>
-              <img src="${imageUrl}" alt="Imagen evento" style="max-width: 100%; height: auto;">
+              <img src="${imageUrl}" alt="Imagen evento" >
               <h4>${ev.descripcion}</h4>
               <p><strong>Precio:</strong> $${ev.price}</p>
               <div class="progress-container">
@@ -152,16 +149,16 @@ fetch('events.php?action=featured')
         // Aquí modificamos el botón de detalles según el porcentaje
         let botonDetallesHtml = '';
         if (Math.round(porcentaje) === 100) {
-          botonDetallesHtml = `<button class="detallesEvento detalles-btn" disabled style="background: grey; cursor: not-allowed; margin-top: 10px;">Agotados</button>`;
+          botonDetallesHtml = `<button class="detallesEvento detalles-btn agotado" disabled>Agotados</button>`;
         } else {
-          botonDetallesHtml = `<a class="detallesEvento detalles-btn" href="event.html?id=${ev.id}" style="display:inline-block; margin-top: 10px;">Ver detalles</a>`;
+          botonDetallesHtml = `<a class="detallesEvento detalles-btn" href="event.html?id=${ev.id}">Ver detalles</a>`;
         }
       
         slide.innerHTML = `
-          <div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:center;padding:18px;">
-            <img src="${imageUrl}" alt="Imagen evento" style="border-radius:10px;max-width:320px;max-height:220px;margin:14px;">
-            <div style="flex:1 1 180px; min-width:220px; padding:14px;">
-                <h3 style="margin-top:0;">${ev.title}</h3>
+          <div class="carousel-slide-body">
+            <img src="${imageUrl}" alt="Imagen evento" class="carousel-image">
+            <div class="carousel-details">
+                <h3>${ev.title}</h3>
                 <p>${ev.descripcion}</p>
                 <p><strong>Precio:</strong> $${ev.price}</p>
                 <div class="progress-container">
@@ -190,14 +187,14 @@ fetch('events.php?action=featured')
       };
     } else {
       document.getElementById('carouselContent').innerHTML =
-        '<div style="padding:2em; text-align:center; color:#888;">No hay eventos destacados</div>';
+        '<div class="no-events">No hay eventos destacados</div>';
       document.getElementById('carouselPrev').disabled = true;
       document.getElementById('carouselNext').disabled = true;
     }
   })
   .catch(err => {
     document.getElementById('carouselContent').innerHTML =
-      '<div style="padding:2em; text-align:center; color:#c00;">No se pueden cargar los destacados</div>';
+      '<div class="carousel-error">No se pueden cargar los destacados</div>';
     console.error("Error al cargar destacados:", err);
   });
 </script>
