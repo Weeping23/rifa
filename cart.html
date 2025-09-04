@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito de compras</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #eef2f3, #dfe9f3);
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      padding: 12px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    
+    nav {
+      display: flex;
+    }
+    
+    nav a.home-icon {
+      color: white;
+      font-size: 1.8rem;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    
+    nav a.home-icon:hover {
+      color: #ffd700;
+      transform: scale(1.1);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 25px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0d6efd;
+    }
+
+    /* Carrito en tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table th, table td {
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    table th {
+      background: #f1f1f1;
+      color: #333;
+    }
+
+    table tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #b02a37;
+    }
+
+    .btn-primary {
+      background: #0d6efd;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0a58ca;
+    }
+
+    #previewContainer {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #previewImg {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      max-width: 200px;
+      max-height: 200px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    /* Toast premium */
+    #toast {
+      visibility: hidden;
+      min-width: 280px;
+      background: #0d6efd;
+      color: #fff;
+      text-align: center;
+      border-radius: 12px;
+      padding: 16px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: opacity 0.5s, transform 0.5s;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      table tr {
+        margin-bottom: 15px;
+        border-bottom: 2px solid #f1f1f1;
+      }
+      table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+      }
+      table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+        color: #555;
+      }
+      .btn {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="index.html" title="Inicio" class="home-icon">
+      <i class="fas fa-home"></i>
+    </a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>🛒 Carrito de compras</h2>
+  <div id="cart"></div>
+
+  <!-- Sección de comprobante -->
+  <div id="paymentSection" style="display:none; margin-top:20px;">
+    <label><b>Subir comprobante de pago:</b></label><br><br>
+    <input type="file" id="compImagen" accept="image/*" class="btn btn-primary"><br><br>
+
+    <div id="previewContainer" style="display:none;">
+      <p><b>Vista previa del comprobante:</b></p>
+      <img id="previewImg">
+    </div>
+    <br>
+    <button class="btn btn-primary" onclick="confirmarCompra()">Confirmar compra</button>
+  </div>
+</div>
+
+<!-- Toast flotante -->
+<div id="toast">Compra registrada como pendiente de validación.</div>
+
+<script src="utils.js"></script>
+<script>
+requireLogin();
+
+async function mostrarCart() {
+  const user = getLoggedUser();
+  const paymentSection = document.getElementById('paymentSection');
+  if (!user) {
+    document.getElementById('cart').innerHTML = "<p>Debes iniciar sesión para ver el carrito.</p>";
+    paymentSection.style.display = "none";
+    return;
+  }
+  try {
+    const res = await fetch(`cart.php?action=list&usuarioId=${user.id}`);
+    const data = await res.json();
+    if (!data.success) {
+      document.getElementById('cart').innerHTML = "<p>Error al cargar el carrito.</p>";
+      paymentSection.style.display = "none";
+      return;
+    }
+    const carrito = (data.records || []).filter(item => item.status === "Pendiente");
+    if (!carrito.length) {
+      document.getElementById('cart').innerHTML = "<p>El carrito está vacío.</p>";
+      paymentSection.style.display = "none";
+      return;
+    }
+    paymentSection.style.display = "block";
+    let t = `
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Números</th>
+            <th>Precio</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    let total = 0;
+    carrito.forEach(item => {
+      total += item.numeros.length * item.precio;
+      t += `
+        <tr>
+          <td data-label="Producto"><b>${item.titulo}</b></td>
+          <td data-label="Números">${item.numeros.join(', ')}</td>
+          <td data-label="Precio">$${item.precio}</td>
+          <td data-label="Acción"><button class="btn btn-danger" onclick="eliminar(${item.id})">Eliminar</button></td>
+        </tr>`;
+    });
+    t += `</tbody></table><p style="text-align:right; font-size:18px;"><b>Total:</b> $${total}</p>`;
+    document.getElementById('cart').innerHTML = t;
+  } catch (error) {
+    document.getElementById('cart').innerHTML = `<p>Error al cargar el carrito: ${error.message}</p>`;
+    paymentSection.style.display = "none";
+    console.error(error);
+  }
+}
+
+async function eliminar(productoId) {
+  const user = getLoggedUser();
+  if (!user) {
+    showToast("Debes iniciar sesión para eliminar productos.", true);
+    return;
+  }
+  try {
+    const res = await fetch(`cart.php?action=delete&carroId=${productoId}&usuarioId=${user.id}`);
+    const data = await res.json();
+    if (data.success) {
+      showToast("Producto eliminado del carrito.");
+      mostrarCart();
+    } else {
+      showToast("Error al eliminar: " + (data.msg || "Desconocido"), true);
+    }
+  } catch (error) {
+    showToast("Error al eliminar producto.", true);
+    console.error(error);
+  }
+}
+
+document.getElementById('compImagen').addEventListener('change', function () {
+  if (this.files && this.files[0]) {
+    let reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('previewContainer').style.display = 'block';
+    };
+    reader.readAsDataURL(this.files[0]);
+  } else {
+    document.getElementById('previewContainer').style.display = 'none';
+  }
+});
+
+async function confirmarCompra() {
+  let user = getLoggedUser();
+  if (!user) {
+    showToast("Debes estar logueado para comprar.", true);
+    return;
+  }
+
+  try {
+    let resCarrito = await fetch(`cart.php?action=list&usuarioId=${user.id}`);
+    let dataCarrito = await resCarrito.json();
+    if (!dataCarrito.success) {
+      showToast("No se pudo leer carrito", true);
+      return;
+    }
+
+    let carrito = (dataCarrito.records || [])
+      .filter(item => item.status === "Pendiente")
+      .map(item => ({
+        ...item,
+        nums: item.numeros,
+        cantidad: item.cantidad,
+        eventoId: parseInt(item.evento_id, 10) || 0
+      }));
+
+    if (carrito.length === 0) {
+      showToast("El carrito está vacío.", true);
+      return;
+    }
+
+    let fileInput = document.getElementById('compImagen');
+    if (!fileInput.files.length) {
+      showToast("Debes subir una imagen como comprobante.", true);
+      return;
+    }
+
+    let reader = new FileReader();
+    reader.onload = function (e) {
+      let dataToSend = {
+        usuarioId: user.id,
+        usuario: user.usuario,
+        nombre: user.nombre || "",
+        apellido: user.apellido || "",
+        imagen: e.target.result,
+        detalle: carrito
+      };
+
+      fetch('confirmarcompra.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(dataToSend)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "ok") {
+          showToast("Compra registrada como pendiente de validación.");
+          mostrarCart();
+          document.getElementById('previewContainer').style.display = 'none';
+          setTimeout(() => window.location.href = "index.html", 2000);
+        } else {
+          showToast("Error al registrar compra: " + data.msg, true);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Error al registrar compra.", true);
+      });
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+
+  } catch (err) {
+    console.error("Error cargando carrito:", err);
+    showToast("Error al cargar el carrito.", true);
+  }
+}
+
+function showToast(msg, error=false) {
+  let toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.style.background = error ? "#dc3545" : "#0d6efd";
+  toast.className = "show";
+  setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+mostrarCart();
+</script>
+</body>
+</html>

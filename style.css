@@ -1,0 +1,67 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f0f2f5;
+}
+
+a {
+  color: #fff; text-decoration: none; margin-right: 10px;
+}
+.container { max-width: 900px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; }
+.event-card { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 16px; padding: 12px; }
+.button { background: #2980d9; color: #fff; border: 0; padding: 8px 20px; border-radius: 4px; cursor: pointer;}
+.button:disabled {background: #999;}
+.number { padding: 7px; border: 1px solid #aaa; margin: 4px; border-radius: 4px; cursor:pointer;}
+.number.selected { background: #ffe600;}
+.login-box { max-width: 350px; margin: 70px auto; padding: 30px; border-radius: 6px; background: #fff; box-shadow: 0 4px 12px #0002;}
+.table { width: 100%; border-collapse: collapse;}
+.table th, .table td { border: 1px solid #ddd; padding: 8px;}
+#nums {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los números salten a otra línea */
+    gap: 5px;        /* Espaciado entre números */
+    max-width: 100%; /* Evita que sobrepasen el ancho */
+}
+
+.number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.number.disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.number.selected {
+    background-color: #4caf50;
+    color: white;
+}
+
+.progress-container {
+    background: #e9ecef;
+    border-radius: 50px;
+    overflow: hidden;
+    height: 18px;
+    margin-top: 8px;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    text-align: right;
+    padding-right: 8px;
+    color: white;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: bold;
+    transition: width 0.5s ease;
+}

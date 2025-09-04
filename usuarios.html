@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Usuarios</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+</header>
+<div class="container">
+    <h2>Usuarios Registrados</h2>
+    <div id="listado"></div>
+</div>
+<script src="utils.js"></script>
+<script>
+requireAdmin();
+
+let users = [];
+
+async function cargarUsuarios() {
+    try {
+        const res = await fetch('usuarios.php');
+        const data = await res.json();
+        if(data.success){
+            users = data.users || [];
+            mostrarUsuarios();
+        } else {
+            alert("Error al cargar usuarios: " + data.msg);
+        }
+    } catch(e) {
+        alert("Error en la conexión para cargar usuarios");
+    }
+}
+
+function mostrarUsuarios() {
+    let html = `<table class="table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Cédula</th>
+                <th>Correo</th>
+                <th>Rol</th>
+            </tr>
+        </thead><tbody>`;
+    users.forEach(u => {
+        html += `<tr>
+            <td>${u.user}</td>
+            <td>${u.nombres || ''}</td>
+            <td>${u.apellidos || ''}</td>
+            <td>${u.telefono || ''}</td>
+            <td>${u.correo || ''}</td>
+            <td>${u.isAdmin ? 'Administrador' : 'Cliente'}</td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+    document.getElementById('listado').innerHTML = html;
+}
+
+cargarUsuarios();
+
+</script>
+</body>
+</html>

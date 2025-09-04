@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Registro</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-box {
+    background: #fff;
+    padding: 30px 35px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    width: 100%; max-width: 420px;
+}
+.login-box h2 {
+    margin-bottom: 20px;
+    color: #0072ff;
+    font-size: 24px;
+    text-align: center;
+}
+.login-box label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 600;
+    color: #444;
+}
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+.login-box input:focus {
+    border-color: #0072ff;
+    box-shadow: 0 0 5px rgba(0,114,255,0.2);
+    outline: none;
+}
+.button {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border: none;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+.button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(90deg, #0094e0, #0056b3);
+}
+#msg {
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="login-box">
+    <h2>Registro de usuario</h2>
+    <form id="registroForm" enctype="multipart/form-data">
+        <label for="nombre">Nombres:</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="apellido">Apellidos:</label>
+        <input type="text" id="apellido" name="apellido" required>
+
+        <label for="usuario">Usuario:</label>
+        <input type="text" id="usuario" name="usuario" required>
+
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" name="correo" required>
+
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="password2">Confirmar Contraseña:</label>
+        <input type="password" id="password2" required>
+
+        <label for="cedula">Cédula:</label>
+        <input type="text" id="cedula" name="cedula" required>
+
+        <label for="imagen">Imagen (opcional):</label>
+        <input type="file" id="imagen" name="imagen" accept="image/*">
+
+        <button class="button" type="submit">Registrarme</button>
+    </form>
+    <div id="msg"></div>
+</div>
+
+<script>
+document.getElementById('registroForm').onsubmit = async function(e){
+    e.preventDefault();
+
+    const pass = document.getElementById('password').value;
+    const pass2 = document.getElementById('password2').value;
+    if(pass !== pass2){
+        document.getElementById('msg').innerHTML = "<span style='color:red;'>Las contraseñas no coinciden.</span>";
+        return;
+    }
+
+    const formData = new FormData(document.getElementById('registroForm'));
+    try {
+        const res = await fetch('registro.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if(data.success){
+            document.getElementById('msg').innerHTML = "<span style='color:green;'>" + data.msg + "</span>";
+            document.getElementById('registroForm').reset();
+        } else {
+            document.getElementById('msg').innerHTML = "<span style='color:red;'>" + data.msg + "</span>";
+        }
+    } catch (err) {
+        document.getElementById('msg').innerHTML = "<span style='color:red;'>Error de conexión.</span>";
+        console.error(err);
+    }
+};
+</script>
+</body>
+</html>

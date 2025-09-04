@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrar Tarifas</title>
+  <style>
+    :root {
+      --bg:#f4f4f8; --card:#ffffff; --text:#111827; --muted:#6b7280;
+      --primary:#2563eb; --primary-hover:#1e40af;
+      --success:#22c55e; --danger:#ef4444; --warning:#f59e0b;
+      --header:#1f2937; --header-hover:#374151;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+    header {
+      background: var(--header); padding: 14px 22px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    header .brand {
+      color: #fff; font-weight: 700; letter-spacing: .3px;
+    }
+    header nav a {
+      color: #e5e7eb; text-decoration: none; margin-left: 14px; padding: 8px 12px; border-radius: 8px; transition: .25s;
+    }
+    header nav a:hover {
+      background: var(--header-hover); color: #fff;
+    }
+    header nav a.active {
+      font-weight: bold; text-decoration: underline;
+    }
+    .container {
+      max-width: 980px; margin: 34px auto; background: var(--card); border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08); padding: 26px;
+    }
+    h2 {
+      margin: 0 0 18px 0; font-size: 1.6rem;
+    }
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
+    }
+    .btn {
+      border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 600; transition: .25s;
+    }
+    .btn-primary {
+      background: var(--primary); color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-success {
+      background: var(--success); color: #fff;
+    }
+    .btn-danger {
+      background: var(--danger); color: #fff;
+    }
+    .btn-warning {
+      background: var(--warning); color: #111827;
+    }
+    .btn-ghost {
+      background: transparent; color: var(--muted);
+    }
+    .actions{
+        text-align: center;
+    }
+    table {
+      width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px;
+    }
+    th, td {
+      padding: 14px 12px; text-align: left;
+    }
+    thead th {
+      background: #eef2ff; color: #111827;
+    }
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    tbody td.actions {
+      text-align: right;
+    }
+    .pill {
+      display: inline-block; padding: 6px 10px; border-radius: 999px; background: #f1f5f9; color: #111827; font-weight: 600;
+    }
+    /* Modal */
+    #modal, #confirmModal {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); z-index: 1000;
+    }
+    .modal-card {
+      background: #fff; width: min(420px, 92vw); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+      animation: pop .2s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(.96); opacity: .8; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block; margin-bottom: 6px; color: var(--muted); font-size: .9rem;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 11px 12px; border: 1px solid #d1d5db; border-radius: 10px;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+      font-size: 1rem;
+    }
+    input:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    .input-error {
+      border-color: var(--danger) !important;
+    }
+    .shake {
+      animation: shake .28s ease-in-out 0s 1;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .modal-actions {
+      display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px;
+    }
+    /* Toast */
+    #toast {
+      position: fixed; top: 18px; right: 20px; z-index: 1200; display: none;
+      min-width: 280px; padding: 14px 16px; border-radius: 12px; color: #fff; font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      transform: translateY(-20px); opacity: 0; transition: .35s;
+    }
+    #toast.show {
+      display: block; transform: translateY(0); opacity: 1;
+    }
+    #toast.success {
+      background: var(--success);
+    }
+    #toast.error {
+      background: var(--danger);
+    }
+    #toast.info {
+      background: var(--primary);
+    }
+    @media (max-width: 768px) {
+      .toolbar { flex-direction: column; gap: 12px; align-items: stretch; }
+      header nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">Panel de Administración</div>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="ventas.html">Histórico Ventas</a>
+    <a href="usuarios.html">Usuarios</a>
+    <a href="rates.html" class="active">Tarifas</a>
+  </nav>
+</header>
+<div class="container">
+  <div class="toolbar">
+    <h2>Gestión de Tarifas</h2>
+    <button class="btn btn-primary" onclick="openModal()">+ Nueva Tarifa</button>
+  </div>
+  <table id="ratesTable">
+    <thead>
+      <tr>
+        <th>Moneda</th>
+        <th>Tasa (BsF)</th>
+        <th style="text-align=left" class="actions">Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<!-- Modal crear/editar -->
+<div id="modal">
+  <div class="modal-card">
+    <h3 id="modalTitle" style="margin-bottom:10px;">Nueva Tarifa</h3>
+    <div class="form-group">
+      <label>Moneda</label>
+      <input type="text" id="currency" placeholder="Ej: USD" aria-label="Moneda" />
+    </div>
+    <div class="form-group">
+      <label>Tasa BsF</label>
+      <input type="number" step="0.0001" id="amount" placeholder="Ej: 36.5000" aria-label="Tasa BsF"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="saveRate()">Guardar</button>
+    </div>
+  </div>
+</div>
+<!-- Modal confirmación eliminar -->
+<div id="confirmModal">
+  <div class="modal-card">
+    <h3 style="margin-bottom:6px;">Confirmar</h3>
+    <p id="confirmText" style="color:var(--muted); margin-bottom:14px;">¿Seguro que deseas continuar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" id="confirmOk">Eliminar</button>
+    </div>
+  </div>
+</div>
+<!-- Toast -->
+<div id="toast" role="alert" aria-live="assertive"></div>
+<script>
+let editingCurrency = null;
+
+function showToast(msg, type="info"){
+  const t = document.getElementById('toast');
+  t.className = ""; // reset
+  t.textContent = msg;
+  t.classList.add(type, 'show');
+  clearTimeout(t._to);
+  t._to = setTimeout(()=>{ t.classList.remove('show'); }, 2800);
+}
+
+async function loadRates() {
+  try {
+    const res = await fetch("rates.php?action=list");
+    const data = await res.json();
+    const tbody = document.querySelector("#ratesTable tbody");
+    tbody.innerHTML = "";
+    if (data.success) {
+      data.records.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.currency}</td>
+          <td>${Number(r.amount).toFixed(4)}</td>
+          <td class="actions">
+            <button class="btn btn-warning" onclick="editRate('${r.currency}', ${r.amount})">Editar</button>
+            <button class="btn btn-danger" onclick="confirmDelete('${r.currency}')">Eliminar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    } else {
+      showToast("Error cargando tarifas", "error");
+    }
+  } catch(e) {
+    showToast("Error cargando tarifas", "error");
+  }
+}
+
+function openModal() {
+  editingCurrency = null;
+  document.getElementById('modalTitle').textContent = "Nueva Tarifa";
+  document.getElementById('currency').value = "";
+  document.getElementById('amount').value = "";
+  document.getElementById('modal').style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = "none";
+}
+
+function editRate(currency, amount) {
+  editingCurrency = currency;
+  document.getElementById('modalTitle').textContent = "Editar Tarifa";
+  document.getElementById('currency').value = currency;
+  document.getElementById('amount').value = amount;
+  document.getElementById('modal').style.display = "flex";
+}
+
+async function saveRate() {
+  const currency = document.getElementById('currency').value.trim();
+  const amount = parseFloat(document.getElementById('amount').value);
+  if(!currency || isNaN(amount)) {
+    showToast("Completa todos los campos correctamente", "error");
+    return;
+  }
+  try {
+    // Decide acción: create o update
+    const action = editingCurrency ? "update" : "create";
+
+    const res = await fetch(`rates.php?action=${action}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        currency,
+        amount,
+        originalCurrency: editingCurrency
+      })
+    });
+    const data = await res.json();
+    if(data.success) {
+      showToast("Tarifa guardada correctamente", "success");
+      closeModal();
+      loadRates();
+    } else {
+      showToast(data.msg || "Error guardando tarifa", "error");
+    }
+  } catch(e) {
+    showToast("Error guardando tarifa", "error");
+  }
+}
+
+let deletingCurrency = null;
+
+function confirmDelete(currency) {
+  deletingCurrency = currency;
+  document.getElementById('confirmText').textContent = `¿Eliminar la tarifa de ${currency}?`;
+  document.getElementById('confirmModal').style.display = "flex";
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').style.display = "none";
+}
+
+document.getElementById('confirmOk').addEventListener("click", async () => {
+  if(!deletingCurrency) return;
+  try {
+    const res = await fetch(`rates.php?action=delete&currency=${encodeURIComponent(deletingCurrency)}`, {
+      method: "POST"
+    });
+    const data = await res.json();
+    if(data.success) {
+      showToast("Tarifa eliminada", "success");
+      loadRates();
+    } else {
+      showToast(data.msg || "Error eliminando tarifa", "error");
+    }
+  } catch(e) {
+    showToast("Error eliminando tarifa", "error");
+  }
+  closeConfirm();
+});
+
+window.onload = loadRates;
+</script>
+</body>
+</html>

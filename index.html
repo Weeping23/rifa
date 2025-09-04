@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rifas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <h2>Rifas</h2>
+    <div class="spacer"></div>
+    <nav>
+      <a href="index.html" title="Inicio"><i class="fas fa-home"></i></a>
+      <a href="cart.html" title="Carrito"><i class="fas fa-shopping-cart"></i></a>
+      <a href="#" id="adminLink" style="display:none;" title="Admin"><i class="fas fa-user-cog"></i></a>
+      <a href="#" id="loginOut" title="Iniciar sesión / Cerrar sesión"><i class="fas fa-sign-in-alt"></i></a>
+    </nav>
+</header>
+<!-- Carrusel de Eventos Destacados -->
+<div id="carouselWrapper" style="width:100%; max-width:800px; margin:auto; margin-bottom:30px; margin-top:60px; display:flex; align-items:center; position:relative;">
+    <button id="carouselPrev"
+            style="font-size:2em; background:none; border:none; cursor:pointer; padding:0 10px; flex-shrink:0;">
+        &#10094;
+    </button>
+
+    <div id="carouselContent"
+         style="overflow:hidden; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); background:#fff; min-height:320px; flex-grow:1; margin: 0 10px;">
+    </div>
+
+    <button id="carouselNext"
+            style="font-size:2em; background:none; border:none; cursor:pointer; padding:0 10px; flex-shrink:0;">
+        &#10095;
+    </button>
+
+</div>
+<div class="container">
+    <h1>Eventos de Rifas</h1>
+    <div id="cardsContainer" class="cards"></div>
+</div>
+<footer>
+  <div class="footer-content">
+    <!-- Sección izquierda: enlaces legales -->
+    <div class="footer-links">
+      <a href="terminos.html">Términos y Condiciones</a>
+      <a href="privacidad.html">Política de Privacidad</a>
+      <a href="cookies.html">Política de Cookies</a>
+    </div>
+
+    <!-- Sección derecha: Iconos sociales -->
+    <div class="footer-social">
+      <p>&copy; 2025 Rifas. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+<script src="utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const adminLink = document.getElementById('adminLink');
+    if (adminLink) {
+        if (isAdmin()) {
+            adminLink.style.display = 'inline-block';
+            adminLink.onclick = () => location.href = 'admin.html';
+        } else {
+            adminLink.style.display = 'none';
+            adminLink.onclick = null;
+        }
+    }
+
+    const loginOut = document.getElementById('loginOut');
+    const user = getLoggedUser();
+
+    if (user) {
+        // Usuario logueado: icono logout, texto y función salir
+        loginOut.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+        loginOut.title = 'Cerrar sesión';
+        loginOut.onclick = () => {
+            localStorage.removeItem('user');
+            location.reload();
+        };
+        loginOut.href = '#'; // previene navegación
+    } else {
+        // Usuario no logueado: icono login, texto y link login
+        loginOut.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
+        loginOut.title = 'Iniciar sesión';
+        loginOut.onclick = null; // limpia event handler previo
+        loginOut.href = 'login.html';
+    }
+});
+
+fetch('events.php?action=list')
+  .then(res => res.json())
+  .then(data => {
+    if (data.Result === "OK") {
+      const cont = document.getElementById('cardsContainer');
+      cont.innerHTML = '';
+      data.Records.forEach(ev => {
+        const disponibles = ev.max - ev.vendidos;
+        const porcentaje = ev.max > 0 ? (ev.vendidos / ev.max) * 100 : 0;
+        const imageUrl = `getimage.php?id=${ev.id}`;
+        
+        let botonHtml = '';
+        if (Math.round(porcentaje) === 100) {
+          botonHtml = `<button class="detallesEvento detalles-btn" disabled style="background: grey; cursor: not-allowed;">Agotados</button>`;
+        } else {
+          botonHtml = `<a class="detallesEvento detalles-btn" href="event.html?id=${ev.id}">Ver detalles</a>`;
+        }
+
+        cont.innerHTML += `
+          <div class="card">
+            <div>
+              <h3>${ev.title}</h3>
+              <img src="${imageUrl}" alt="Imagen evento" style="max-width: 100%; height: auto;">
+              <h4>${ev.descripcion}</h4>
+              <p><strong>Precio:</strong> $${ev.price}</p>
+              <div class="progress-container">
+                <div class="progress-bar" style="width:${porcentaje}%">
+                  ${Math.round(porcentaje)}%
+                </div>
+              </div>
+            </div>
+            ${botonHtml}
+          </div>
+        `;
+      });
+    } else {
+      console.error("Error:", data.Message);
+    }
+  })
+  .catch(err => console.error("Error al cargar rifas:", err));
+</script>
+<script>
+// Carrusel de destacados con transición y flechas en margen inferior
+fetch('events.php?action=featured')
+  .then(res => res.json())
+  .then(data => {
+    if (data.Result === "OK" && data.Records.length > 0) {
+      const events = data.Records;
+      let currentSlide = 0;
+      const content = document.getElementById('carouselContent');
+
+      function drawSlide(idx) {
+        const ev = events[idx];
+        const disponibles = ev.max - ev.vendidos;
+        const porcentaje = ev.max > 0 ? (ev.vendidos / ev.max) * 100 : 0;
+        const imageUrl = `getimage.php?id=${ev.id}`;
+      
+        content.innerHTML = '';
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide';
+      
+        // Aquí modificamos el botón de detalles según el porcentaje
+        let botonDetallesHtml = '';
+        if (Math.round(porcentaje) === 100) {
+          botonDetallesHtml = `<button class="detallesEvento detalles-btn" disabled style="background: grey; cursor: not-allowed; margin-top: 10px;">Agotados</button>`;
+        } else {
+          botonDetallesHtml = `<a class="detallesEvento detalles-btn" href="event.html?id=${ev.id}" style="display:inline-block; margin-top: 10px;">Ver detalles</a>`;
+        }
+      
+        slide.innerHTML = `
+          <div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:center;padding:18px;">
+            <img src="${imageUrl}" alt="Imagen evento" style="border-radius:10px;max-width:320px;max-height:220px;margin:14px;">
+            <div style="flex:1 1 180px; min-width:220px; padding:14px;">
+                <h3 style="margin-top:0;">${ev.title}</h3>
+                <p>${ev.descripcion}</p>
+                <p><strong>Precio:</strong> $${ev.price}</p>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width:${porcentaje}%">
+                    ${Math.round(porcentaje)}%
+                  </div>
+                </div>
+                ${botonDetallesHtml}
+            </div>
+          </div>
+        `;
+        content.appendChild(slide);
+      
+        setTimeout(() => slide.classList.add('carousel-visible'), 30);
+      }
+
+      drawSlide(currentSlide);
+
+      document.getElementById('carouselPrev').onclick = () => {
+        currentSlide = (currentSlide-1+events.length) % events.length;
+        drawSlide(currentSlide);
+      };
+      document.getElementById('carouselNext').onclick = () => {
+        currentSlide = (currentSlide+1) % events.length;
+        drawSlide(currentSlide);
+      };
+    } else {
+      document.getElementById('carouselContent').innerHTML =
+        '<div style="padding:2em; text-align:center; color:#888;">No hay eventos destacados</div>';
+      document.getElementById('carouselPrev').disabled = true;
+      document.getElementById('carouselNext').disabled = true;
+    }
+  })
+  .catch(err => {
+    document.getElementById('carouselContent').innerHTML =
+      '<div style="padding:2em; text-align:center; color:#c00;">No se pueden cargar los destacados</div>';
+    console.error("Error al cargar destacados:", err);
+  });
+</script>
+</body>
+</html>

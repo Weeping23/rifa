@@ -1,0 +1,166 @@
+body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        }
+        /* Header general */
+        header {
+          background: linear-gradient(90deg, #007bff, #0056b3);
+          color: white;
+          padding: 12px 30px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+    
+        /* Título izquierda */
+        header h2 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+    
+        /* Zona central vacía para equilibrar */
+        .spacer {
+          flex: 1;
+        }
+    
+        /* Navegación derecha */
+        nav {
+          display: flex;
+          gap: 18px;
+        }
+    
+        nav a {
+          color: white;
+          text-decoration: none;
+          font-size: 1.2rem;
+          transition: transform 0.2s ease, color 0.2s ease;
+        }
+    
+        nav a:hover {
+          color: #ffd700;
+          transform: scale(1.1);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        footer {
+          background: linear-gradient(0deg, #000, #222); /* negro profundo hacia gris oscuro */
+          color: #ddd;
+          padding: 25px 40px;
+          margin-top: 40px;
+        }
+        
+        .footer-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap; /* responsive */
+          gap: 15px;
+        }
+        
+        .footer-links a {
+          margin-right: 20px;
+          color: #ddd;
+          text-decoration: none;
+          font-size: 0.95rem;
+        }
+        
+        .footer-links a:hover {
+          color: #ffd700; /* dorado en hover */
+        }
+        
+        .footer-social a {
+          margin: 0;
+          font-size: 0.9rem;
+          opacity: 0.8;
+        }
+        
+        .footer-social a:hover {
+          color: #ffd700;
+          transform: scale(1.15);
+        }
+        /* Grid de cartas */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .card p {
+            margin: 5px 0;
+        }
+        .card a {
+            background: #007bff;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .card a:hover {
+            background: #0056b3;
+        }
+        .progress-container {
+    background: #e9ecef;
+    border-radius: 50px;
+    overflow: hidden;
+    height: 18px;
+    margin-top: 8px;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 18px;
+    transition: width 0.5s ease;
+}
+.detallesEvento{
+    margin-top: 10px;
+}
+#carouselContent > .carousel-slide {
+    opacity: 0;
+    transform: translateX(15px);
+    transition: opacity 0.4s, transform 0.4s;
+    position: relative;
+}
+
+#carouselContent > .carousel-slide.carousel-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.detalles-btn{
+    background: #007bff;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+}
